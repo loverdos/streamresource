@@ -21,15 +21,14 @@ import java.io.InputStream
 import java.net.URL
 import java.util.Properties
 import com.ckkloverdos.maybe.{NoVal, Maybe}
+import com.ckkloverdos.convert.Converters
 
 /**
  * Properties with conversion methods.
  *
- * TODO: integrate with `converter` project
- * 
  * @author Christos KK Loverdos <loverdos@gmail.com>.
  */
-class Props(val map: Map[String, String]) {
+class Props(val map: Map[String, String])(implicit conv: Converters = Converters.DefaultConverters) {
 
   private def _toBoolean(value: String, falseStrings: Set[String]): Boolean = {
     if(null eq value) {
@@ -38,6 +37,8 @@ class Props(val map: Map[String, String]) {
       !(falseStrings contains value.toLowerCase)
     }
   }
+
+  def converters = conv
 
   def contains(key: String) = map contains key
   
@@ -60,37 +61,37 @@ class Props(val map: Map[String, String]) {
   }
 
   def getByte(key: String): Maybe[Byte] = map.get(key) match {
-      case Some(value) => Maybe(value.toByte)
+      case Some(value) => conv.convertValueToByte(value)
       case None => NoVal
     }
 
   def getShort(key: String): Maybe[Short] = map.get(key) match {
-    case Some(value) => Maybe(value.toShort)
+    case Some(value) => conv.convertValueToShort(value)
     case None => NoVal
   }
 
   def getInt(key: String): Maybe[Int] = map.get(key) match {
-    case Some(value) => Maybe(value.toInt)
+    case Some(value) => conv.convertValueToInt(conv)
     case None => NoVal
   }
 
   def getLong(key: String): Maybe[Long] = map.get(key) match {
-    case Some(value) => Maybe(value.toLong)
+    case Some(value) => conv.convertValueToLong(value)
     case None => NoVal
   }
   
   def getDouble(key: String): Maybe[Double] = map.get(key) match {
-    case Some(value) => Maybe(value.toDouble)
+    case Some(value) => conv.convertValueToDouble(value)
     case None => NoVal
   }
 
   def getFloat(key: String): Maybe[Float] = map.get(key) match {
-    case Some(value) => Maybe(value.toFloat)
+    case Some(value) => conv.convertValueToFloat(value)
     case None => NoVal
   }
 
   def getProps(key: String): Maybe[Props] = map.get(key) match {
-    case Some(value) => Props(value)
+    case Some(value) => conv.convertValue(value, manifest[Props])
     case None => NoVal
   }
   
@@ -130,7 +131,7 @@ object Props {
 
   lazy val empty = new Props(Map())
   
-  def apply(rc: StreamResource): Maybe[Props] = {
+  def apply(rc: StreamResource)(implicit conv: Converters): Maybe[Props] = {
     rc.mapInputStream { in =>
       val props = new java.util.Properties
       props.load(in)
@@ -139,17 +140,17 @@ object Props {
     } map (new Props(_))
   }
 
-  def apply(in: InputStream): Maybe[Props] =
+  def apply(in: InputStream)(implicit conv: Converters): Maybe[Props] =
     this(new WrappingStreamResource(in, DummyWrappedPath, DummyWrappedURL))
 
-  def apply(props: Properties): Maybe[Props] = {
+  def apply(props: Properties)(implicit conv: Converters): Maybe[Props] = {
     import collection.JavaConversions._
     Maybe(new Props(props.toMap))
   }
   
-  def apply(path: String, rc: StreamResourceContext = DefaultResourceContext): Maybe[Props] = {
+  def apply(path: String, rc: StreamResourceContext = DefaultResourceContext)(implicit conv: Converters): Maybe[Props] = {
     rc.getResource(path).flatMap(this(_))
   }
 
-  def apply(keyvals: (String, String)*): Props = new Props(Map(keyvals: _*))
+  def apply(keyvals: (String, String)*)(implicit conv: Converters): Props = new Props(Map(keyvals: _*))
 }

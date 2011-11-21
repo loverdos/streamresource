@@ -21,6 +21,7 @@ import org.junit.Test
 import com.ckkloverdos.runmode.{StageMode, RunMode, TestMode, StandardRunModeContext}
 import com.ckkloverdos.props.Props
 import com.ckkloverdos.maybe.Just
+import com.ckkloverdos.convert.Converters
 
 /**
  *
@@ -47,6 +48,8 @@ class ResourceTest {
   val rcKeyListColon = "listColon"
 
   val rmc = new StandardRunModeContext(DefaultResourceContext)
+
+  implicit val converters = Converters.DefaultConverters
 
   private[this] def _exists(context: StreamResourceContext, rc_path: String, rc_name: String) {
     val maybeRC = context.getResource(rc_path)

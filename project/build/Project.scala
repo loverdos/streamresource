@@ -62,6 +62,7 @@ class Project(info: ProjectInfo) extends DefaultProject(info) {
 
   val lib_maybe           = "com.ckkloverdos" %% "maybe"          % "0.3.0"        % "compile"  withSources()
   val lib_sysprop         = "com.ckkloverdos" %% "sysprop"        % "0.1.0"        % "compile"  withSources()
+  val lib_converter       = "com.ckkloverdos" %% "converter"      % "0.3.0"        % "compile"  withSources()
   val lib_slf4j           = "org.slf4j"       % "slf4j-api"       % "1.6.1"        % "compile"  withSources()
   val lib_logback_simple  = "ch.qos.logback"  % "logback-classic" % "0.9.28"       % "test"     withSources()
   val lib_junit_interface = "com.novocode"    % "junit-interface" % "0.7"          % "test"
