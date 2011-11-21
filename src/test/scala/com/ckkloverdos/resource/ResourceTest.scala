@@ -20,6 +20,7 @@ import org.junit.Assert
 import org.junit.Test
 import com.ckkloverdos.runmode.{StageMode, RunMode, TestMode, StandardRunModeContext}
 import com.ckkloverdos.props.Props
+import com.ckkloverdos.maybe.Just
 
 /**
  *
@@ -200,5 +201,57 @@ class ResourceTest {
     Assert.assertEquals(List("one", "two", "three"), listComma)
     val listColon = props.getTrimmedList(rcKeyListColon, "\\s*:\\s*")
     Assert.assertEquals(List("one", "two", "three"), listColon)
+  }
+  
+  @Test
+  def testPropsBoolean {
+    val key1val = ("key1", "on", true)
+    val key2val = ("key2",  "off", false)
+    val key3val = ("key3", "0", false)
+    val all = Seq(key1val, key2val, key3val)
+    val keyvals = all map { case (k, v, _) => (k, v) }
+    val props = Props(keyvals: _*)
+
+    all foreach  { case (k, _, b) =>
+      Assert.assertEquals("Testing boolean property: %s".format(k), Just(b), props.getBoolean(k))
+    }
+  }
+  
+  @Test
+  def testPropsEqual1 {
+    val props1 = Props("1" -> "one", "2" -> "two")
+    val props2 = Props("2" -> "two", "1" -> "one")
+    Assert.assertEquals(props1, props2)
+    Assert.assertEquals(props2, props1)
+  }
+
+  @Test
+  def testPropsEqual2 {
+    class SuperProps(map: Map[String, String]) extends Props(map)
+    val props1 = new SuperProps(Map("1" -> "one", "2" -> "two"))
+    val props2 = Props("2" -> "two", "1" -> "one")
+    Assert.assertTrue(props1.equalsProps(props2))
+    Assert.assertTrue(props2.equalsProps(props1))
+  }
+
+  @Test
+  def testPropsNotEqual1 {
+    val props1 = Props("1" -> "one", "2" -> "two")
+    val props2 = Props("2" -> "two", "1" -> "one1")
+    Assert.assertFalse(props1 == props2)
+  }
+
+  @Test
+  def testPropsNotEqual2 {
+    val props1 = Props("1" -> "one", "2" -> "two")
+    Assert.assertFalse(props1 == null)
+  }
+  
+  @Test
+  def testPropsNotEqual3 {
+    class SuperProps(map: Map[String, String]) extends Props(map)
+    val props1 = new SuperProps(Map("1" -> "one", "2" -> "two"))
+    val props2 = Props("2" -> "two", "1" -> "one")
+    Assert.assertFalse(props1 == props2)
   }
 }

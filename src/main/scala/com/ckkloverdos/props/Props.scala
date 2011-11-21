@@ -31,7 +31,43 @@ import com.ckkloverdos.maybe.{NoVal, Maybe}
  */
 class Props(val map: Map[String, String]) {
 
+  private def _toBoolean(value: String, falseStrings: Set[String]): Boolean = {
+    if(null eq value) {
+      throw new NullPointerException("Cannot get a Boolean from null")
+    } else {
+      !(falseStrings contains value.toLowerCase)
+    }
+  }
+
+  def contains(key: String) = map contains key
+  
+  def filterKeys(f: String => Boolean) = new Props(map filterKeys f)
+  
+  def filterValues(f: String => Boolean) = new Props(map filter {case (k, v) => f(v)})
+
+  /**
+   * Get a value or throw an exception if it doesnot exist.
+   */
+  def getEx(key: String): String = map apply key
+
   def get(key: String): Maybe[String] = map.get(key): Maybe[String]
+
+  def getOr(key: String, default: String = null): String = map.getOrElse(key, default)
+
+  def getBoolean(key: String, falseStrings: Set[String] = Props.DefaultFalseStrings): Maybe[Boolean] = map.get(key) match {
+    case Some(value) => Maybe(_toBoolean(value, falseStrings))
+    case None => NoVal
+  }
+
+  def getByte(key: String): Maybe[Byte] = map.get(key) match {
+      case Some(value) => Maybe(value.toByte)
+      case None => NoVal
+    }
+
+  def getShort(key: String): Maybe[Short] = map.get(key) match {
+    case Some(value) => Maybe(value.toShort)
+    case None => NoVal
+  }
 
   def getInt(key: String): Maybe[Int] = map.get(key) match {
     case Some(value) => Maybe(value.toInt)
@@ -47,7 +83,12 @@ class Props(val map: Map[String, String]) {
     case Some(value) => Maybe(value.toDouble)
     case None => NoVal
   }
-  
+
+  def getFloat(key: String): Maybe[Float] = map.get(key) match {
+    case Some(value) => Maybe(value.toFloat)
+    case None => NoVal
+  }
+
   def getProps(key: String): Maybe[Props] = map.get(key) match {
     case Some(value) => Props(value)
     case None => NoVal
@@ -60,9 +101,30 @@ class Props(val map: Map[String, String]) {
 
   def getTrimmedList(key: String, separatorRegex: String = "\\s*,\\s*"): List[String] =
     getList(key, separatorRegex).map(_.trim).filter(_.length > 0)
+
+  override def equals(any: Any) = any match {
+    case props: Props if(props.getClass == this.getClass) => props.map == this.map
+    case _ => false
+  }
+
+  def equalsProps(other: Props): Boolean = other match {
+    case null => false
+    case _    => equalsMap(other.map)
+  }
+
+  def equalsMap(other: Map[String, String]): Boolean = other match {
+    case null => false
+    case _ => other == this.map
+  }
+
+  override def hashCode() = map.##
+
+  override def toString = "Props(%s)".format(map.mkString(", "))
 }
 
 object Props {
+  lazy val DefaultFalseStrings = Set("false", "off", "0")
+
   lazy val DummyWrappedURL = new URL("streamresource://wrapped")
   lazy val DummyWrappedPath = "wrapped"
 
@@ -88,4 +150,6 @@ object Props {
   def apply(path: String, rc: StreamResourceContext = DefaultResourceContext): Maybe[Props] = {
     rc.getResource(path).flatMap(this(_))
   }
+
+  def apply(keyvals: (String, String)*): Props = new Props(Map(keyvals: _*))
 }
