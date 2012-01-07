@@ -18,7 +18,6 @@ package com.ckkloverdos.resource
 
 import org.junit.Assert
 import org.junit.Test
-import com.ckkloverdos.runmode.{StageMode, RunMode, TestMode, StandardRunModeContext}
 import com.ckkloverdos.props.Props
 import com.ckkloverdos.maybe.Just
 import com.ckkloverdos.convert.Converters
@@ -46,8 +45,6 @@ class ResourceTest {
   val rcConfProps = "conf.properties"
   val rcKeyListComma = "listComma"
   val rcKeyListColon = "listColon"
-
-  val rmc = new StandardRunModeContext(DefaultResourceContext)
 
   implicit val converters = Converters.DefaultConverters
 
@@ -78,18 +75,8 @@ class ResourceTest {
   }
 
   @Test
-  def testExistsA_rmp {
-    _exists(rmc.resourceContext, rcA_path, rcA_name)
-  }
-
-  @Test
   def testExistsA2 {
     _exists(DefaultResourceContext / "", rcA_path, rcA_name)
-  }
-
-  @Test
-  def testExistsA2_rmp {
-    _exists(rmc.resourceContext / "", rcA_path, rcA_name)
   }
 
   @Test
@@ -98,18 +85,8 @@ class ResourceTest {
   }
 
   @Test
-  def testExistsB_rmp {
-    _exists(rmc.resourceContext, rcB_path, rcB_name)
-  }
-
-  @Test
   def testExistsB2 {
     _exists(DefaultResourceContext / "b", rcB_pathSeenFromB, rcB_name)
-  }
-
-  @Test
-  def testExistsB2_rmp {
-    _exists(rmc.resourceContext / "b", rcB_pathSeenFromB, rcB_name)
   }
 
   @Test
@@ -118,18 +95,8 @@ class ResourceTest {
   }
 
   @Test
-  def testExistsC_rmp {
-    _exists(rmc.resourceContext, rcC_path, rcC_name)
-  }
-
-  @Test
   def testExistsC2 {
     _exists(DefaultResourceContext / "b", rcC_pathSeenFromB, rcC_name)
-  }
-
-  @Test
-  def testExistsC2_rmp {
-    _exists(rmc.resourceContext / "b", rcC_pathSeenFromB, rcC_name)
   }
 
   @Test
@@ -138,18 +105,8 @@ class ResourceTest {
   }
 
   @Test
-  def testExistsC3_rmp {
-    _exists(rmc.resourceContext / "b" / "c", rcC_pathSeenFromC, rcC_name)
-  }
-
-  @Test
   def testContentOfA {
     _content(DefaultResourceContext, rcA_path, rcA_content)
-  }
-
-  @Test
-  def testContentOfA_rmp {
-    _content(rmc.resourceContext, rcA_path, rcA_content)
   }
 
   @Test
@@ -158,42 +115,8 @@ class ResourceTest {
   }
 
   @Test
-  def testContentOfB_rmp {
-    _content(rmc.resourceContext, rcB_path, rcB_content)
-  }
-
-  @Test
   def testContentOfC {
     _content(DefaultResourceContext, rcC_path, rcC_content)
-  }
-
-  @Test
-  def testContentOfC_rmp {
-    _content(rmc.resourceContext, rcC_path, rcC_content)
-  }
-
-  @Test
-  def testActualRunMode {
-    val runMode = rmc.runMode
-    Assert.assertEquals(TestMode, runMode)
-  }
-
-  @Test
-  def testFakeRunMode {
-    val saveValue = RunMode.RunModeSysProp.rawValue
-
-    try {
-      // set new run.mode
-      RunMode.RunModeSysProp.update(StageMode.name)
-      // get a context that will pick up the new run.mode
-      val rmc = new StandardRunModeContext(DefaultResourceContext)
-      val runMode = rmc.runMode
-      // And although we are in *test*, we infer *stage* because it was explicitly set as such!
-      Assert.assertEquals(StageMode, runMode)
-    } finally {
-      // clean up the mess and let the other tests proceed accordingly
-      RunMode.RunModeSysProp.update(saveValue)
-    }
   }
 
   @Test
