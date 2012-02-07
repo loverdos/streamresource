@@ -36,7 +36,7 @@ final class ClassLoaderStreamResourceContext private(
 
   def /(child: String) = new ClassLoaderStreamResourceContext(cl, parent, concatResourcePaths(this.extraPath, child))
 
-  def getLocalResource(path: String, normalized: Boolean = true) = {
+  def getLocalResource(path: String) = {
     val actualPath = concatResourcePaths(extraPath, path)
     logger.debug("Searching for local resource %s (actual: %s) in %s".format(path, actualPath, this))
     cl.getResource(actualPath) match {

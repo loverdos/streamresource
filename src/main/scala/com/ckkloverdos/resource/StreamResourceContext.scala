@@ -29,9 +29,9 @@ trait StreamResourceContext {
   
   def parent: Maybe[StreamResourceContext]
 
-  def getResource(path: String, normalized: Boolean = true): Maybe[StreamResource]
+  def getResource(path: String): Maybe[StreamResource]
 
-  def getLocalResource(path: String, normalized: Boolean = true): Maybe[StreamResource]
+  def getLocalResource(path: String): Maybe[StreamResource]
 }
 
 object StreamResourceContext {

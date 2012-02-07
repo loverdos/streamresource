@@ -30,8 +30,8 @@ final class CompositeStreamResourceContext(
 
   def /(child: String) = new CompositeStreamResourceContext(parent, others.map(_./(child)): _*)
 
-  def getLocalResource(path: String, normalized: Boolean = true): Maybe[StreamResource] =
-    others find { rc => rc.getResource(path, normalized).isJust } map { _.getResource(path, normalized) } getOrElse NoVal
+  def getLocalResource(path: String): Maybe[StreamResource] =
+    others find { rc => rc.getResource(path).isJust } map { _.getResource(path) } getOrElse NoVal
 
   override def toString = "CompositeStreamResourceContext(%s, %s)".format(parent, others)
 }
