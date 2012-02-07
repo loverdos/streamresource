@@ -29,19 +29,27 @@ abstract class StreamResourceContextSkeleton(_parent: Maybe[StreamResourceContex
   def parent = _parent
 
   def getResource(path: String) = {
-    getLocalResource(path) match {
-      case j@Just(rc) =>
-        logger.debug("  Found %s".format(rc))
+    getResourceX(path).map(_.resource)
+  }
+
+  def getLocalResource(path: String) = {
+    getLocalResourceX(path).map(_.resource)
+  }
+
+  def getResourceX(path: String) = {
+    getLocalResourceX(path) match {
+      case j@Just(rrc) ⇒
+        logger.debug("  Found %s".format(rrc))
         j
-      case NoVal =>
+      case NoVal ⇒
         logger.debug("  ==> Not found")
         if(parent.isJust) {
           logger.debug("  Trying parent %s".format(parent))
-          parent.flatMap(_.getResource(path))
+          parent.flatMap(_.getResourceX(path))
         } else {
           NoVal
         }
-      case f@Failed(_, _) =>
+      case f@Failed(_, _) ⇒
         logger.warn("Error %s".format(f))
         f
     }

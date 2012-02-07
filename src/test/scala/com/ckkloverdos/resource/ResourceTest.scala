@@ -131,8 +131,8 @@ class ResourceTest {
   
   @Test
   def testPropsBoolean {
-    val key1val = ("key1", "on", true)
-    val key2val = ("key2",  "off", false)
+    val key1val = ("key1", "true", true)
+    val key2val = ("key2",  "false", false)
     val key3val = ("key3", "0", false)
     val all = Seq(key1val, key2val, key3val)
     val keyvals = all map { case (k, v, _) => (k, v) }

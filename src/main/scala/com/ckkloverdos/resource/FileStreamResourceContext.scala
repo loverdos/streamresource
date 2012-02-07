@@ -50,9 +50,9 @@ final class FileStreamResourceContext(
 
   def /(child: String) = new FileStreamResourceContext(new File(this.root, child), parent.map(_./(child)))
 
-  def getLocalResource(path: String) = {
+  def getLocalResourceX(path: String) = {
     new File(root, path) match {
-      case file if file.exists => Maybe(new FileStreamResource(file))
+      case file if file.exists => Maybe(ResolvedStreamResource(new FileStreamResource(file), this))
       case _ => NoVal
     }
   }

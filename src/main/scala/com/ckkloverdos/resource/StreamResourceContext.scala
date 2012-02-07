@@ -32,6 +32,10 @@ trait StreamResourceContext {
   def getResource(path: String): Maybe[StreamResource]
 
   def getLocalResource(path: String): Maybe[StreamResource]
+  
+  def getResourceX(path: String): Maybe[ResolvedStreamResource]
+
+  def getLocalResourceX(path: String): Maybe[ResolvedStreamResource]
 }
 
 object StreamResourceContext {
