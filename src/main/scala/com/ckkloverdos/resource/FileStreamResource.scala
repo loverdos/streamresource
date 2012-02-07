@@ -34,4 +34,6 @@ class FileStreamResource(file: JFile) extends StreamResourceSkeleton {
   def path = file.getPath
 
   protected def _inputStream = new FileInputStream(file)
+
+  override def toString = "FileStreamResource(%s)".format(file.getCanonicalPath)
 }
