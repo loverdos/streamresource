@@ -23,36 +23,38 @@ import com.ckkloverdos.maybe.{Maybe, Just, Failed}
  * 
  * @author Christos KK Loverdos <loverdos@gmail.com>.
  */
-abstract class StreamResourceSkeleton extends StreamResource {
+abstract class StreamResourceSkeleton(_metadata: Map[String, String] = Map()) extends StreamResource {
   protected def _inputStream: InputStream
 
-  def mapInputStream[A](f: InputStream => A): Maybe[A] = {
+  def metadata = _metadata
+
+  def mapInputStream[A](f: InputStream ⇒ A): Maybe[A] = {
     try {
       val in = _inputStream
       try {
         Just(f(in))
       } catch {
-        case e: Exception => Failed(e, "withInputStream on %s".format(url))
+        case e: Exception ⇒ Failed(e)
       } finally {
         in.close()
       }
     } catch {
-      case e: Exception => Failed(e, "withInputStream on %s".format(url))
+      case e: Exception ⇒ Failed(e)
     }
   }
 
-  def flatMapInputStream[A](f: InputStream => Maybe[A]): Maybe[A] = {
+  def flatMapInputStream[A](f: InputStream ⇒ Maybe[A]): Maybe[A] = {
     try {
       val in = _inputStream
       try {
         f(in)
       } catch {
-        case e: Exception => Failed(e, "withInputStream on %s".format(url))
+        case e: Exception ⇒ Failed(e)
       } finally {
         in.close()
       }
     } catch {
-      case e: Exception => Failed(e, "withInputStream on %s".format(url))
+      case e: Exception ⇒ Failed(e)
     }
   }
 
@@ -80,7 +82,7 @@ abstract class StreamResourceSkeleton extends StreamResource {
     }
   }
 
-  def stringContent = this.mapString(identity)
+  def stringContent = this.mapString(scala.Predef.identity)
 
-  def byteContent = this.mapBytes(identity)
+  def byteContent = this.mapBytes(scala.Predef.identity)
 }

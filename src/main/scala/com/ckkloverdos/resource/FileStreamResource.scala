@@ -22,7 +22,7 @@ import java.io.{FileInputStream, File => JFile}
  *
  * @author Christos KK Loverdos <loverdos@gmail.com>.
  */
-class FileStreamResource(file: JFile) extends StreamResourceSkeleton {
+final class FileStreamResource(file: JFile) extends StreamResourceSkeleton(FileStreamResource.fillMetadata(file)) {
   def exists = file.exists
 
   def url = file.toURI.toURL
@@ -36,4 +36,10 @@ class FileStreamResource(file: JFile) extends StreamResourceSkeleton {
   protected def _inputStream = new FileInputStream(file)
 
   override def toString = "FileStreamResource(%s)".format(file.getCanonicalPath)
+}
+
+object FileStreamResource {
+  def fillMetadata(file: JFile): Map[String, String] = {
+    Map("lastModified" -> file.lastModified().toString)
+  }
 }

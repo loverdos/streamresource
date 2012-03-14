@@ -16,28 +16,24 @@
 
 package com.ckkloverdos.props
 
-import com.ckkloverdos.resource.{StreamResource, WrappingStreamResource, StreamResourceContext, DefaultResourceContext}
-import java.io.InputStream
-import java.net.URL
-import java.util.Properties
 import com.ckkloverdos.convert.Converters
+import java.net.URL
+import java.io.InputStream
+import java.util.Properties
+import com.ckkloverdos.resource.{StreamResourceContext, WrappingStreamResource, StreamResource, DefaultResourceContext}
 import com.ckkloverdos.maybe.{NoVal, Maybe}
-import com.ckkloverdos.key.StringKey
-import com.ckkloverdos.env.Env
 
 /**
  * Properties with conversion methods.
  *
  * @author Christos KK Loverdos <loverdos@gmail.com>.
  */
-class Props(val map: Map[String, String])(implicit conv: Converters = Converters.DefaultConverters) extends PropsBase[String, String, Props]{
-  def newProps(map: Props#MapType) = new Props(map)
-
-  def toAnyProps: AnyProps = new AnyProps(map)
+class AnyProps(val map: Map[String, Any])(implicit conv: Converters = Converters.DefaultConverters) extends PropsBase[String, Any, AnyProps]{
+  def newProps(map: AnyProps#MapType) = new AnyProps(map)
 
   val converters = conv
 
-  def getBoolean(key: String): Maybe[Boolean] = map.get(key) match {
+  def getBoolean(key: String, falseStrings: Set[String] = AnyProps.DefaultFalseStrings): Maybe[Boolean] = map.get(key) match {
     case Some(value) ⇒ conv.convertToBoolean(value)
     case None ⇒ NoVal
   }
@@ -72,13 +68,18 @@ class Props(val map: Map[String, String])(implicit conv: Converters = Converters
     case None ⇒ NoVal
   }
 
-  def getProps(key: String): Maybe[Props] = map.get(key) match {
-    case Some(value) ⇒ conv.convert[Props](value)
+  def getProps(key: String): Maybe[AnyProps] = map.get(key) match {
+    case Some(value) ⇒ conv.convert[AnyProps](value)
     case None ⇒ NoVal
   }
   
   def getList(key: String, separatorRegex: String = "\\s*,\\s*") = map.get(key) match {
-    case Some(value) ⇒ value.split(separatorRegex).toList
+    case Some(value) ⇒ value match {
+      case value: String ⇒
+        value.split(separatorRegex).toList
+      case _ ⇒
+        Nil
+    }
     case None ⇒ Nil
   }
 
@@ -86,64 +87,53 @@ class Props(val map: Map[String, String])(implicit conv: Converters = Converters
     getList(key, separatorRegex).map(_.trim).filter(_.length > 0)
 
   override def equals(any: Any) = any match {
-    case props: Props if(props.getClass == this.getClass) ⇒ props.map == this.map
+    case props: AnyProps ⇒ props.getClass == this.getClass && props.map == this.map
     case _ ⇒ false
   }
 
-  def equalsProps(other: Props): Boolean = other match {
+  def equalsAnyProps(other: AnyProps): Boolean = other match {
     case null ⇒ false
     case _    ⇒ equalsMap(other.map)
   }
 
-  def equalsMap(other: Map[String, String]): Boolean = other match {
+  def equalsMap(other: Map[String, Any]): Boolean = other match {
     case null ⇒ false
     case _ ⇒ other == this.map
-  }
-  
-  def toEnv: Env = new Env(map map { case (k, v) ⇒ (StringKey(k), v)})
-
-  def group(keyPrefix: String): Props = {
-    val dottedPrefix = keyPrefix + "."
-    val newPairs = for {
-      key <- map.keysIterator if(key.startsWith(dottedPrefix))
-    } yield {
-      key.substring(dottedPrefix.length) -> map(key)
-    }
-
-    new Props(Map(newPairs.toSeq: _*))
   }
 
   override def hashCode() = map.##
 
-  override def toString = "Props(%s)".format(map.mkString(", "))
+  override def toString = "AnyProps(%s)".format(map.mkString(", "))
 }
 
-object Props {
+object AnyProps {
+  lazy val DefaultFalseStrings = Set("false", "off", "0")
+
   lazy val DummyWrappedURL = new URL("streamresource://wrapped")
   lazy val DummyWrappedPath = "wrapped"
 
   lazy val empty = new Props(Map())
   
-  def apply(rc: StreamResource)(implicit conv: Converters): Maybe[Props] = {
+  def apply(rc: StreamResource)(implicit conv: Converters): Maybe[AnyProps] = {
     rc.mapInputStream { in ⇒
       val props = new java.util.Properties
       props.load(in)
       import collection.JavaConversions._
       props.toMap
-    } map (new Props(_))
+    } map (new AnyProps(_))
   }
 
-  def apply(in: InputStream)(implicit conv: Converters): Maybe[Props] =
+  def apply(in: InputStream)(implicit conv: Converters): Maybe[AnyProps] =
     this(new WrappingStreamResource(in, DummyWrappedPath, DummyWrappedURL))
 
-  def apply(props: Properties)(implicit conv: Converters): Maybe[Props] = {
+  def apply(props: Properties)(implicit conv: Converters): Maybe[AnyProps] = {
     import collection.JavaConversions._
-    Maybe(new Props(props.toMap))
+    Maybe(new AnyProps(props.toMap))
   }
   
-  def apply(path: String, rc: StreamResourceContext = DefaultResourceContext)(implicit conv: Converters): Maybe[Props] = {
+  def apply(path: String, rc: StreamResourceContext = DefaultResourceContext)(implicit conv: Converters): Maybe[AnyProps] = {
     rc.getResource(path).flatMap(this(_))
   }
 
-  def apply(keyvals: (String, String)*)(implicit conv: Converters): Props = new Props(Map(keyvals: _*))
+  def apply(keyvals: (String, Any)*)(implicit conv: Converters): AnyProps = new AnyProps(Map(keyvals: _*))
 }

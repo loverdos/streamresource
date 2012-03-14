@@ -49,7 +49,7 @@ abstract class StreamResourceContextSkeleton(_parent: Maybe[StreamResourceContex
         } else {
           NoVal
         }
-      case f@Failed(_, _) ⇒
+      case f@Failed(_) ⇒
         logger.warn("Error %s".format(f))
         f
     }

@@ -17,6 +17,7 @@
 package com.ckkloverdos.resource
 
 import com.ckkloverdos.maybe.{NoVal, Maybe}
+import java.net.URLClassLoader
 
 /**
  * 
@@ -45,5 +46,14 @@ final class ClassLoaderStreamResourceContext private(
     }
   }
 
-  override def toString = "ClassLoaderStreamResourceContext(%s, %s, %s)".format(cl, parent, extraPath)
+  override def toString = {
+    val clStr = cl match {
+      case urlcs: URLClassLoader ⇒
+        val urls = urlcs.getURLs
+        "%s@%s(URLs = [%s])".format(urlcs.getClass.getName, System.identityHashCode(urlcs), urls.toList.mkString(", "))
+      case cl ⇒
+        cl.toString
+    }
+    "ClassLoaderStreamResourceContext(%s, %s, %s)".format(clStr, parent, extraPath)
+  }
 }

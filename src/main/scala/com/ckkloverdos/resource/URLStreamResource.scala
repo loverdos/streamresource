@@ -19,11 +19,13 @@ package com.ckkloverdos.resource
 import java.net.URL
 import java.io.File
 
-class URLStreamResource(val path: String, val url: URL) extends StreamResourceSkeleton {
+final class URLStreamResource(val path: String, val url: URL) extends StreamResourceSkeleton {
   def exists = this.mapInputStream(_ => true) getOr false
 
   def canonicalPath = url.toExternalForm
   def name = new File(path).getName
 
   protected def _inputStream = url.openStream
+
+  override def toString = "URLStreamResource(%s, %s)".format(path, url)
 }

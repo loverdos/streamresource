@@ -23,10 +23,14 @@ import java.io.{File, InputStream}
  * 
  * @author Christos KK Loverdos <loverdos@gmail.com>.
  */
-class WrappingStreamResource(protected val _inputStream: InputStream, val path: String, val url: URL) extends StreamResourceSkeleton {
+final class WrappingStreamResource(protected val _inputStream: InputStream,
+                                   val path: String,
+                                   val url: URL) extends StreamResourceSkeleton {
   def exists = null ne _inputStream
 
   def name = new File(path).getName
 
   def canonicalPath = path
+
+  override def toString = "WrappingStreamResource(%s, %s, %s)".format(_inputStream, path, url)
 }

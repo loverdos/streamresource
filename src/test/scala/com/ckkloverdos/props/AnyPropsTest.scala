@@ -1,5 +1,5 @@
 /*
- * Copyright 2012 Christos KK Loverdos
+ * Copyright 2011 Christos KK Loverdos
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -14,13 +14,35 @@
  * limitations under the License.
  */
 
-package com.ckkloverdos.resource
+package com.ckkloverdos.props
+
+import org.junit.Assert
+import org.junit.Test
+import com.ckkloverdos.maybe.Just
 
 /**
- * A [[com.ckkloverdos.resource.StreamResource]] with the [[com.ckkloverdos.resource.StreamResourceContext]] that
- * resolved it.
- *
+ * 
  * @author Christos KK Loverdos <loverdos@gmail.com>
  */
 
-case class ResolvedStreamResource(resource: StreamResource, resolver: StreamResourceContext)
+class AnyPropsTest {
+  val strKey1 = "str.key.1"
+  val strVal1 = "str.val.1"
+  val strKey2 = "str.key.2"
+  val strVal2 = 12
+
+  lazy val map   = Map(strKey1 -> strVal1, strKey2 -> strVal2)
+  lazy val props = new AnyProps(map)
+
+  @Test
+  def testInt1: Unit = {
+    val value2M = props.get(strKey2)
+    Assert.assertEquals(Just(strVal2), value2M)
+  }
+
+  @Test
+  def testInt2: Unit = {
+    val value2M = props.getInt(strKey2)
+    Assert.assertEquals(Just(strVal2), value2M)
+  }
+}

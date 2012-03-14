@@ -37,6 +37,8 @@ trait StreamResource {
   def name: String
   def path: String
   def canonicalPath: String
+  
+  def metadata: Map[String, String]
 
   def mapInputStream[A](f: InputStream => A): Maybe[A]
   def flatMapInputStream[A](f: InputStream => Maybe[A]): Maybe[A]
