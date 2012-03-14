@@ -11,3 +11,5 @@ README.pdf
 out/
 project/build/target/
 project/boot/
+release
+deploy
