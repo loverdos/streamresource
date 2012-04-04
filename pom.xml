@@ -26,7 +26,7 @@
 
   <groupId>com.ckkloverdos</groupId>
   <artifactId>streamresource</artifactId>
-    <version>0.4.0-SNAPSHOT</version>
+    <version>0.5.0-SNAPSHOT</version>
     <packaging>jar</packaging>
 
     <name>StreamResource</name>
@@ -82,22 +82,22 @@
     <dependency>
       <groupId>com.ckkloverdos</groupId>
       <artifactId>maybe</artifactId>
-      <version>0.4.0-SNAPSHOT</version>
+      <version>0.5.0-SNAPSHOT</version>
     </dependency>
     <dependency>
       <groupId>com.ckkloverdos</groupId>
       <artifactId>sysprop</artifactId>
-      <version>0.4.0-SNAPSHOT</version>
+      <version>0.5.0-SNAPSHOT</version>
     </dependency>
     <dependency>
       <groupId>com.ckkloverdos</groupId>
       <artifactId>converter</artifactId>
-      <version>0.4.0-SNAPSHOT</version>
+      <version>0.5.0-SNAPSHOT</version>
     </dependency>
     <dependency>
       <groupId>com.ckkloverdos</groupId>
       <artifactId>typedkey</artifactId>
-      <version>0.4.0-SNAPSHOT</version>
+      <version>0.5.0-SNAPSHOT</version>
     </dependency>
     <dependency>
       <groupId>junit</groupId>
