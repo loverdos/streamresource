@@ -100,7 +100,9 @@ class Props(val map: Map[String, String])(implicit conv: Converters = Converters
     case _ ⇒ other == this.map
   }
   
-  def toEnv: Env = new Env(map map { case (k, v) ⇒ (StringKey(k), v)})
+  def toEnv: Env = {
+    map.foldLeft(Env())((env, kv) ⇒ env + (StringKey(kv._1), kv._2))
+  }
 
   def group(keyPrefix: String): Props = {
     val dottedPrefix = keyPrefix + "."
