@@ -47,7 +47,7 @@ trait PropsBase[K, V, P <: PropsBase[K, V,  P]] {
 
   def get(key: K): Maybe[V] = map.get(key): Maybe[V]
 
-  def getOr(key: K, default: V): Any = map.getOrElse(key, default)
+  def getOr(key: K, default: V): V = map.getOrElse(key, default)
 
   def size: Int = map.size
 
