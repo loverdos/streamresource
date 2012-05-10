@@ -17,7 +17,7 @@
 package com.ckkloverdos.props
 
 import com.ckkloverdos.convert.Converters
-import com.ckkloverdos.maybe.{MaybeOption, NoVal, Maybe}
+import com.ckkloverdos.maybe.Maybe
 
 
 /**
@@ -35,12 +35,12 @@ trait PropsBase[K, V, P <: PropsBase[K, V,  P]] {
 
   def contains(key: K) = map contains key
   
-  def filterKeys(f: K => Boolean) = newProps(map filterKeys f)
+  def filterKeys(f: K ⇒ Boolean) = newProps(map filterKeys f)
   
-  def filterValues(f: V => Boolean) = newProps(map filter {case (k, v) => f(v)})
+  def filterValues(f: V ⇒ Boolean) = newProps(map filter { case (_, v) ⇒ f(v) })
 
   /**
-   * Get a value or throw an exception if it doesnot exist.
+   * Get a value or throw an exception if it does not exist.
    */
   @throws(classOf[NoSuchElementException])
   def getEx(key: K): V = map apply key
@@ -54,4 +54,6 @@ trait PropsBase[K, V, P <: PropsBase[K, V,  P]] {
   def keySet: Set[K] = map.keySet
 
   def keysIterator: Iterator[K] = map.keysIterator
+
+  def isEmpty = size == 0
 }

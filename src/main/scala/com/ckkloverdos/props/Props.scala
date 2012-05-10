@@ -37,6 +37,11 @@ class Props(val map: Map[String, String])(implicit conv: Converters = Converters
 
   val converters = conv
 
+  def subsetForKeyPrefix(prefix: String): Props = {
+    val _prefix = prefix + "."
+    filterKeys(_.startsWith(_prefix))
+  }
+
   def getBoolean(key: String): Maybe[Boolean] = map.get(key) match {
     case Some(value) ⇒ conv.convertToBoolean(value)
     case None ⇒ NoVal
