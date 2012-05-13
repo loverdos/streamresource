@@ -43,66 +43,168 @@ class Props(val map: Map[String, String])(implicit conv: Converters = Converters
   }
 
   def getBoolean(key: String): Maybe[Boolean] = map.get(key) match {
-    case Some(value) ⇒ conv.convertToBoolean(value)
-    case None ⇒ NoVal
+    case Some(value) ⇒
+      conv.convertToBoolean(value)
+
+    case None ⇒
+      NoVal
+  }
+
+  def getBooleanEx(key: String): Boolean = map.get(key) match {
+    case Some(value) ⇒
+      conv.convertToBooleanEx(value)
+
+    case None ⇒
+      throw new IllegalArgumentException("Unknown key %s".format(key))
   }
 
   def getByte(key: String): Maybe[Byte] = map.get(key) match {
-    case Some(value) ⇒ conv.convertToByte(value)
-    case None ⇒ NoVal
+    case Some(value) ⇒
+      conv.convertToByte(value)
+
+    case None ⇒
+      NoVal
+  }
+
+  def getByteEx(key: String): Byte = map.get(key) match {
+    case Some(value) ⇒
+      conv.convertToByteEx(value)
+
+    case None ⇒
+      throw new IllegalArgumentException("Unknown key %s".format(key))
   }
 
   def getShort(key: String): Maybe[Short] = map.get(key) match {
-    case Some(value) ⇒ conv.convertToShort(value)
-    case None ⇒ NoVal
+    case Some(value) ⇒
+      conv.convertToShort(value)
+
+    case None ⇒
+      NoVal
+  }
+
+  def getShortEx(key: String): Short = map.get(key) match {
+    case Some(value) ⇒
+      conv.convertToShortEx(value)
+
+    case None ⇒
+      throw new IllegalArgumentException("Unknown key %s".format(key))
   }
 
   def getInt(key: String): Maybe[Int] = map.get(key) match {
-    case Some(value) ⇒ conv.convertToInt(value)
-    case None ⇒ NoVal
+    case Some(value) ⇒
+      conv.convertToInt(value)
+
+    case None ⇒
+      NoVal
+  }
+
+  def getIntEx(key: String): Int = map.get(key) match {
+    case Some(value) ⇒
+      conv.convertToIntEx(value)
+
+    case None ⇒
+      throw new IllegalArgumentException("Unknown key %s".format(key))
   }
 
   def getLong(key: String): Maybe[Long] = map.get(key) match {
-    case Some(value) ⇒ conv.convertToLong(value)
-    case None ⇒ NoVal
+    case Some(value) ⇒
+      conv.convertToLong(value)
+
+    case None ⇒
+      NoVal
   }
-  
+
+  def getLongEx(key: String): Long = map.get(key) match {
+    case Some(value) ⇒
+      conv.convertToLongEx(value)
+
+    case None ⇒
+      throw new IllegalArgumentException("Unknown key %s".format(key))
+  }
+
   def getDouble(key: String): Maybe[Double] = map.get(key) match {
-    case Some(value) ⇒ conv.convertToDouble(value)
-    case None ⇒ NoVal
+    case Some(value) ⇒
+      conv.convertToDouble(value)
+
+    case None ⇒
+      NoVal
+  }
+
+  def getDoubleEx(key: String): Double = map.get(key) match {
+    case Some(value) ⇒
+      conv.convertToDoubleEx(value)
+
+    case None ⇒
+      throw new IllegalArgumentException("Unknown key %s".format(key))
   }
 
   def getFloat(key: String): Maybe[Float] = map.get(key) match {
-    case Some(value) ⇒ conv.convertToFloat(value)
-    case None ⇒ NoVal
+    case Some(value) ⇒
+      conv.convertToFloat(value)
+
+    case None ⇒
+      NoVal
+  }
+
+  def getFloatEx(key: String): Float = map.get(key) match {
+    case Some(value) ⇒
+      conv.convertToFloatEx(value)
+
+    case None ⇒
+      throw new IllegalArgumentException("Unknown key %s".format(key))
   }
 
   def getProps(key: String): Maybe[Props] = map.get(key) match {
-    case Some(value) ⇒ conv.convert[Props](value)
-    case None ⇒ NoVal
+    case Some(value) ⇒
+      conv.convert[Props](value)
+
+    case None ⇒
+      NoVal
   }
+
+  def getPropsEx(key: String): Props = map.get(key) match {
+    case Some(value) ⇒
+      conv.convertEx[Props](value)
+
+    case None ⇒
+      throw new IllegalArgumentException("Unknown key %s".format(key))
+  }
+
   
   def getList(key: String, separatorRegex: String = "\\s*,\\s*") = map.get(key) match {
-    case Some(value) ⇒ value.split(separatorRegex).toList
-    case None ⇒ Nil
+    case Some(value) ⇒
+      value.split(separatorRegex).toList
+
+    case None ⇒
+      Nil
   }
 
-  def getTrimmedList(key: String, separatorRegex: String = "\\s*,\\s*"): List[String] =
+  def getTrimmedList(key: String, separatorRegex: String = "\\s*,\\s*"): List[String] = {
     getList(key, separatorRegex).map(_.trim).filter(_.length > 0)
+  }
 
   override def equals(any: Any) = any match {
-    case props: Props if(props.getClass == this.getClass) ⇒ props.map == this.map
-    case _ ⇒ false
+    case props: Props if(props.getClass == this.getClass) ⇒
+      props.map == this.map
+
+    case _ ⇒
+      false
   }
 
   def equalsProps(other: Props): Boolean = other match {
-    case null ⇒ false
-    case _    ⇒ equalsMap(other.map)
+    case null ⇒
+      false
+
+    case _    ⇒
+      equalsMap(other.map)
   }
 
   def equalsMap(other: Map[String, String]): Boolean = other match {
-    case null ⇒ false
-    case _ ⇒ other == this.map
+    case null ⇒
+      false
+
+    case _ ⇒
+      other == this.map
   }
   
   def toEnv: Env = {
