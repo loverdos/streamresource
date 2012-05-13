@@ -41,9 +41,7 @@ trait PropsBase[K, V, P <: PropsBase[K, V,  P]] {
 
   /**
    * Get a value or throw an exception if it does not exist.
-   *
    */
-  @inline
   @throws(classOf[NoSuchElementException])
   def getEx(key: K): V = this(key)
 
