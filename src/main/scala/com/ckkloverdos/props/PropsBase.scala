@@ -41,9 +41,17 @@ trait PropsBase[K, V, P <: PropsBase[K, V,  P]] {
 
   /**
    * Get a value or throw an exception if it does not exist.
+   *
+   */
+  @inline
+  @throws(classOf[NoSuchElementException])
+  def getEx(key: K): V = this(key)
+
+  /**
+   * Get a value or throw an exception if it does not exist.
    */
   @throws(classOf[NoSuchElementException])
-  def getEx(key: K): V = map apply key
+  def apply(key: K): V = map apply key
 
   def get(key: K): Maybe[V] = map.get(key): Maybe[V]
 
