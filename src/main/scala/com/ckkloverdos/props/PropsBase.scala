@@ -17,7 +17,7 @@
 package com.ckkloverdos.props
 
 import com.ckkloverdos.convert.Converters
-import com.ckkloverdos.maybe.Maybe
+import com.ckkloverdos.maybe.{Failed, MaybeEither, Maybe}
 
 
 /**
@@ -63,7 +63,17 @@ trait PropsBase[K, V, P <: PropsBase[K, V,  P]] {
 
   def isEmpty = size == 0
 
-  protected[this] def handleKeyError[A](key: String, f: ⇒ A): A = {
+  protected[this] def handleKeyLookup[A](key: String, f: ⇒ MaybeEither[A]): MaybeEither[A] = {
+    f match {
+      case Failed(e) ⇒
+        Failed(new Exception("For key %s".format(key), e))
+
+      case just ⇒
+        just
+    }
+  }
+
+  protected[this] def handleKeyLookupEx[A](key: String, f: ⇒ A): A = {
     try f
     catch {
       case e: Throwable ⇒
