@@ -62,4 +62,12 @@ trait PropsBase[K, V, P <: PropsBase[K, V,  P]] {
   def keysIterator: Iterator[K] = map.keysIterator
 
   def isEmpty = size == 0
+
+  protected[this] def handleKeyError[A](key: String, f: ⇒ A): A = {
+    try f
+    catch {
+      case e: Throwable ⇒
+        throw new Exception("For key %s".format(key), e)
+    }
+ }
 }

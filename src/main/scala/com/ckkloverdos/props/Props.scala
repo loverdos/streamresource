@@ -44,7 +44,7 @@ class Props(val map: Map[String, String])(implicit conv: Converters = Converters
 
   def getBoolean(key: String): Maybe[Boolean] = map.get(key) match {
     case Some(value) ⇒
-      conv.convertToBoolean(value)
+      handleKeyError(key, conv.convertToBoolean(value))
 
     case None ⇒
       NoVal
@@ -52,7 +52,7 @@ class Props(val map: Map[String, String])(implicit conv: Converters = Converters
 
   def getBooleanEx(key: String): Boolean = map.get(key) match {
     case Some(value) ⇒
-      conv.convertToBooleanEx(value)
+      handleKeyError(key, conv.convertToBooleanEx(value))
 
     case None ⇒
       throw new IllegalArgumentException("Unknown key %s".format(key))
@@ -60,7 +60,7 @@ class Props(val map: Map[String, String])(implicit conv: Converters = Converters
 
   def getByte(key: String): Maybe[Byte] = map.get(key) match {
     case Some(value) ⇒
-      conv.convertToByte(value)
+      handleKeyError(key, conv.convertToByte(value))
 
     case None ⇒
       NoVal
@@ -68,7 +68,7 @@ class Props(val map: Map[String, String])(implicit conv: Converters = Converters
 
   def getByteEx(key: String): Byte = map.get(key) match {
     case Some(value) ⇒
-      conv.convertToByteEx(value)
+      handleKeyError(key, conv.convertToByteEx(value))
 
     case None ⇒
       throw new IllegalArgumentException("Unknown key %s".format(key))
@@ -76,7 +76,7 @@ class Props(val map: Map[String, String])(implicit conv: Converters = Converters
 
   def getShort(key: String): Maybe[Short] = map.get(key) match {
     case Some(value) ⇒
-      conv.convertToShort(value)
+      handleKeyError(key, conv.convertToShort(value))
 
     case None ⇒
       NoVal
@@ -84,7 +84,7 @@ class Props(val map: Map[String, String])(implicit conv: Converters = Converters
 
   def getShortEx(key: String): Short = map.get(key) match {
     case Some(value) ⇒
-      conv.convertToShortEx(value)
+      handleKeyError(key, conv.convertToShortEx(value))
 
     case None ⇒
       throw new IllegalArgumentException("Unknown key %s".format(key))
@@ -92,7 +92,7 @@ class Props(val map: Map[String, String])(implicit conv: Converters = Converters
 
   def getInt(key: String): Maybe[Int] = map.get(key) match {
     case Some(value) ⇒
-      conv.convertToInt(value)
+      handleKeyError(key, conv.convertToInt(value))
 
     case None ⇒
       NoVal
@@ -100,7 +100,7 @@ class Props(val map: Map[String, String])(implicit conv: Converters = Converters
 
   def getIntEx(key: String): Int = map.get(key) match {
     case Some(value) ⇒
-      conv.convertToIntEx(value)
+      handleKeyError(key, conv.convertToIntEx(value))
 
     case None ⇒
       throw new IllegalArgumentException("Unknown key %s".format(key))
@@ -108,7 +108,7 @@ class Props(val map: Map[String, String])(implicit conv: Converters = Converters
 
   def getLong(key: String): Maybe[Long] = map.get(key) match {
     case Some(value) ⇒
-      conv.convertToLong(value)
+      handleKeyError(key, conv.convertToLong(value))
 
     case None ⇒
       NoVal
@@ -116,7 +116,7 @@ class Props(val map: Map[String, String])(implicit conv: Converters = Converters
 
   def getLongEx(key: String): Long = map.get(key) match {
     case Some(value) ⇒
-      conv.convertToLongEx(value)
+      handleKeyError(key, conv.convertToLongEx(value))
 
     case None ⇒
       throw new IllegalArgumentException("Unknown key %s".format(key))
@@ -124,7 +124,7 @@ class Props(val map: Map[String, String])(implicit conv: Converters = Converters
 
   def getDouble(key: String): Maybe[Double] = map.get(key) match {
     case Some(value) ⇒
-      conv.convertToDouble(value)
+      handleKeyError(key, conv.convertToDouble(value))
 
     case None ⇒
       NoVal
@@ -132,7 +132,7 @@ class Props(val map: Map[String, String])(implicit conv: Converters = Converters
 
   def getDoubleEx(key: String): Double = map.get(key) match {
     case Some(value) ⇒
-      conv.convertToDoubleEx(value)
+      handleKeyError(key, conv.convertToDoubleEx(value))
 
     case None ⇒
       throw new IllegalArgumentException("Unknown key %s".format(key))
@@ -140,7 +140,7 @@ class Props(val map: Map[String, String])(implicit conv: Converters = Converters
 
   def getFloat(key: String): Maybe[Float] = map.get(key) match {
     case Some(value) ⇒
-      conv.convertToFloat(value)
+      handleKeyError(key, conv.convertToFloat(value))
 
     case None ⇒
       NoVal
@@ -148,7 +148,7 @@ class Props(val map: Map[String, String])(implicit conv: Converters = Converters
 
   def getFloatEx(key: String): Float = map.get(key) match {
     case Some(value) ⇒
-      conv.convertToFloatEx(value)
+      handleKeyError(key, conv.convertToFloatEx(value))
 
     case None ⇒
       throw new IllegalArgumentException("Unknown key %s".format(key))
@@ -156,7 +156,7 @@ class Props(val map: Map[String, String])(implicit conv: Converters = Converters
 
   def getProps(key: String): Maybe[Props] = map.get(key) match {
     case Some(value) ⇒
-      conv.convert[Props](value)
+      handleKeyError(key, conv.convert[Props](value))
 
     case None ⇒
       NoVal
@@ -164,7 +164,7 @@ class Props(val map: Map[String, String])(implicit conv: Converters = Converters
 
   def getPropsEx(key: String): Props = map.get(key) match {
     case Some(value) ⇒
-      conv.convertEx[Props](value)
+      handleKeyError(key, conv.convertEx[Props](value))
 
     case None ⇒
       throw new IllegalArgumentException("Unknown key %s".format(key))
@@ -173,7 +173,7 @@ class Props(val map: Map[String, String])(implicit conv: Converters = Converters
   
   def getList(key: String, separatorRegex: String = "\\s*,\\s*") = map.get(key) match {
     case Some(value) ⇒
-      value.split(separatorRegex).toList
+      handleKeyError(key, value.split(separatorRegex).toList)
 
     case None ⇒
       Nil
