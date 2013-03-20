@@ -23,35 +23,60 @@ import com.ckkloverdos.maybe.{Failed, NoVal, Just, Maybe}
  *
  * @author Christos KK Loverdos <loverdos@gmail.com>.
  */
-abstract class StreamResourceContextSkeleton(_parent: Maybe[StreamResourceContext]) extends StreamResourceContext {
+abstract class StreamResourceContextSkeleton(_parent: Option[StreamResourceContext]) extends StreamResourceContext {
   protected val logger = LoggerFactory.getLogger(getClass)
 
   def parent = _parent
 
+  def getResourceOpt(path: String) = getResource(path).toOption
+
+  def getLocalResourceOpt(path: String) = getLocalResource(path).toOption
+
   def getResource(path: String) = {
-    getResourceX(path).map(_.resource)
-  }
-
-  def getLocalResource(path: String) = {
-    getLocalResourceX(path).map(_.resource)
-  }
-
-  def getResourceX(path: String) = {
-    getLocalResourceX(path) match {
+    getLocalResource(path) match {
       case j@Just(rrc) ⇒
         logger.debug("  Found %s".format(rrc))
         j
+
       case NoVal ⇒
         logger.debug("  ==> Not found")
-        if(parent.isJust) {
+        if(parent.isDefined) {
           logger.debug("  Trying parent %s".format(parent))
-          parent.flatMap(_.getResourceX(path))
+          for {
+            p <- parent
+            r <- p.getResourceOpt(path)
+          } yield r
         } else {
           NoVal
         }
+
       case f@Failed(_) ⇒
         logger.warn("Error %s".format(f))
         f
+    }
+  }
+
+  def getResourceEx(path: String): StreamResource = {
+    getLocalResource(path) match {
+      case Just(rrc) ⇒
+        logger.debug("  Found %s".format(rrc))
+        rrc
+
+      case NoVal ⇒
+        logger.debug("  ==> Not found")
+        parent match {
+          case Some(p) ⇒
+            logger.debug("  Trying parent %s".format(parent))
+            p.getResourceEx(path)
+
+          case None ⇒
+            throw new Exception("Resource %s not found in %s".format(path, this))
+
+        }
+
+      case Failed(e) ⇒
+        logger.warn("Error %s".format(e))
+        throw new Exception("Error getting resource %s in %s".format(path, this), e)
     }
   }
 }

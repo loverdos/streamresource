@@ -71,52 +71,52 @@ class ResourceTest {
 
   @Test
   def testExistsA {
-    _exists(DefaultResourceContext, rcA_path, rcA_name)
+    _exists(ThreadResourceContext, rcA_path, rcA_name)
   }
 
   @Test
   def testExistsA2 {
-    _exists(DefaultResourceContext / "", rcA_path, rcA_name)
+    _exists(ThreadResourceContext / "", rcA_path, rcA_name)
   }
 
   @Test
   def testExistsB {
-    _exists(DefaultResourceContext, rcB_path, rcB_name)
+    _exists(ThreadResourceContext, rcB_path, rcB_name)
   }
 
   @Test
   def testExistsB2 {
-    _exists(DefaultResourceContext / "b", rcB_pathSeenFromB, rcB_name)
+    _exists(ThreadResourceContext / "b", rcB_pathSeenFromB, rcB_name)
   }
 
   @Test
   def testExistsC {
-    _exists(DefaultResourceContext, rcC_path, rcC_name)
+    _exists(ThreadResourceContext, rcC_path, rcC_name)
   }
 
   @Test
   def testExistsC2 {
-    _exists(DefaultResourceContext / "b", rcC_pathSeenFromB, rcC_name)
+    _exists(ThreadResourceContext / "b", rcC_pathSeenFromB, rcC_name)
   }
 
   @Test
   def testExistsC3 {
-    _exists(DefaultResourceContext / "b" / "c", rcC_pathSeenFromC, rcC_name)
+    _exists(ThreadResourceContext / "b" / "c", rcC_pathSeenFromC, rcC_name)
   }
 
   @Test
   def testContentOfA {
-    _content(DefaultResourceContext, rcA_path, rcA_content)
+    _content(ThreadResourceContext, rcA_path, rcA_content)
   }
 
   @Test
   def testContentOfB {
-    _content(DefaultResourceContext, rcB_path, rcB_content)
+    _content(ThreadResourceContext, rcB_path, rcB_content)
   }
 
   @Test
   def testContentOfC {
-    _content(DefaultResourceContext, rcC_path, rcC_content)
+    _content(ThreadResourceContext, rcC_path, rcC_content)
   }
 
   @Test

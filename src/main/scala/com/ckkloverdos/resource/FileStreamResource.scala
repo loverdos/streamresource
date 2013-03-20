@@ -22,7 +22,10 @@ import java.io.{FileInputStream, File => JFile}
  *
  * @author Christos KK Loverdos <loverdos@gmail.com>.
  */
-final class FileStreamResource(file: JFile) extends StreamResourceSkeleton(FileStreamResource.fillMetadata(file)) {
+final class FileStreamResource(
+    file: JFile,
+    override val resolver: StreamResourceContext
+) extends StreamResourceSkeleton(resolver, FileStreamResource.fillMetadata(file)) {
   def exists = file.exists
 
   def url = file.toURI.toURL

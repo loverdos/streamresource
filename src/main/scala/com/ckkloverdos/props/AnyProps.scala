@@ -17,11 +17,10 @@
 package com.ckkloverdos.props
 
 import com.ckkloverdos.convert.Converters
-import java.net.URL
+import com.ckkloverdos.maybe.{NoVal, Maybe}
+import com.ckkloverdos.resource.{StreamResourceContext, StreamResource, ThreadResourceContext}
 import java.io.InputStream
 import java.util.Properties
-import com.ckkloverdos.resource.{StreamResourceContext, WrappingStreamResource, StreamResource, DefaultResourceContext}
-import com.ckkloverdos.maybe.{NoVal, Maybe}
 
 /**
  * Properties with conversion methods.
@@ -109,13 +108,10 @@ class AnyProps(val map: Map[String, Any])(implicit conv: Converters = Converters
 object AnyProps {
   lazy val DefaultFalseStrings = Set("false", "off", "0")
 
-  lazy val DummyWrappedURL = new URL("streamresource://wrapped")
-  lazy val DummyWrappedPath = "wrapped"
-
   lazy val empty = new Props(Map())
   
   def apply(rc: StreamResource)(implicit conv: Converters): Maybe[AnyProps] = {
-    rc.mapInputStream { in ⇒
+    rc.mapStream { in ⇒
       val props = new java.util.Properties
       props.load(in)
       import collection.JavaConversions._
@@ -123,15 +119,21 @@ object AnyProps {
     } map (new AnyProps(_))
   }
 
-  def apply(in: InputStream)(implicit conv: Converters): Maybe[AnyProps] =
-    this(new WrappingStreamResource(in, DummyWrappedPath, DummyWrappedURL))
+  def apply(in: InputStream)(implicit conv: Converters): Maybe[AnyProps] = {
+    Maybe {
+      val props = new java.util.Properties
+      props.load(in)
+      import collection.JavaConversions._
+      new AnyProps(props.toMap)
+    }
+  }
 
   def apply(props: Properties)(implicit conv: Converters): Maybe[AnyProps] = {
     import collection.JavaConversions._
     Maybe(new AnyProps(props.toMap))
   }
   
-  def apply(path: String, rc: StreamResourceContext = DefaultResourceContext)(implicit conv: Converters): Maybe[AnyProps] = {
+  def apply(path: String, rc: StreamResourceContext = ThreadResourceContext)(implicit conv: Converters): Maybe[AnyProps] = {
     rc.getResource(path).flatMap(this(_))
   }
 

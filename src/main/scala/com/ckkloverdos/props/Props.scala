@@ -16,14 +16,13 @@
 
 package com.ckkloverdos.props
 
-import com.ckkloverdos.resource.{StreamResource, WrappingStreamResource, StreamResourceContext, DefaultResourceContext}
-import java.io.InputStream
-import java.net.URL
-import java.util.Properties
 import com.ckkloverdos.convert.Converters
-import com.ckkloverdos.maybe.{NoVal, Maybe}
-import com.ckkloverdos.key.StringKey
 import com.ckkloverdos.env.Env
+import com.ckkloverdos.maybe.{NoVal, Maybe}
+import com.ckkloverdos.resource.{StreamResource, StreamResourceContext, ThreadResourceContext}
+import java.io.InputStream
+import java.util.Properties
+import com.ckkloverdos.key.TKeyOnly
 
 /**
  * Properties with conversion methods.
@@ -208,7 +207,7 @@ class Props(val map: Map[String, String])(implicit conv: Converters = Converters
   }
   
   def toEnv: Env = {
-    map.foldLeft(Env())((env, kv) ⇒ env + (StringKey(kv._1), kv._2))
+    map.foldLeft(Env())((env, kv) ⇒ env + (new TKeyOnly[String](kv._1), kv._2))
   }
 
   def group(keyPrefix: String): Props = {
@@ -228,13 +227,10 @@ class Props(val map: Map[String, String])(implicit conv: Converters = Converters
 }
 
 object Props {
-  lazy val DummyWrappedURL = new URL("streamresource://wrapped")
-  lazy val DummyWrappedPath = "wrapped"
-
   lazy val empty = new Props(Map())
   
   def apply(rc: StreamResource)(implicit conv: Converters): Maybe[Props] = {
-    rc.mapInputStream { in ⇒
+    rc.mapStream { in ⇒
       val props = new java.util.Properties
       props.load(in)
       import collection.JavaConversions._
@@ -242,15 +238,21 @@ object Props {
     } map (new Props(_))
   }
 
-  def apply(in: InputStream)(implicit conv: Converters): Maybe[Props] =
-    this(new WrappingStreamResource(in, DummyWrappedPath, DummyWrappedURL))
+  def apply(in: InputStream)(implicit conv: Converters): Maybe[Props] = {
+    Maybe {
+      val props = new java.util.Properties
+      props.load(in)
+      import collection.JavaConversions._
+      new Props(props.toMap)
+    }
+  }
 
   def apply(props: Properties)(implicit conv: Converters): Maybe[Props] = {
     import collection.JavaConversions._
     Maybe(new Props(props.toMap))
   }
   
-  def apply(path: String, rc: StreamResourceContext = DefaultResourceContext)(implicit conv: Converters): Maybe[Props] = {
+  def apply(path: String, rc: StreamResourceContext = ThreadResourceContext)(implicit conv: Converters): Maybe[Props] = {
     rc.getResource(path).flatMap(this(_))
   }
 

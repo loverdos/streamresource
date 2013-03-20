@@ -31,6 +31,11 @@ import com.ckkloverdos.maybe._
  */
 
 trait StreamResource {
+  /**
+   * Returns the [[com.ckkloverdos.resource.StreamResourceContext]] that resolved this resource.
+   */
+  def resolver: StreamResourceContext
+
   def exists: Boolean
   def url: URL
 
@@ -40,8 +45,8 @@ trait StreamResource {
   
   def metadata: Map[String, String]
 
-  def mapInputStream[A](f: InputStream => A): Maybe[A]
-  def flatMapInputStream[A](f: InputStream => Maybe[A]): Maybe[A]
+  def mapStream[A](f: InputStream => A): Maybe[A]
+  def flatMapStream[A](f: InputStream => Maybe[A]): Maybe[A]
 
   def mapReader[A](f: Reader => A): Maybe[A]
   def mapBufferedReader[A](f: BufferedReader => A): Maybe[A]
@@ -73,11 +78,15 @@ object StreamResource {
   }
 
   // TODO move elsewhere
-  def readStringFromStream(is: InputStream, encoding: String = "UTF-8", close: Boolean = false, bufferSize: Int = 4096): Maybe[String] =
-    readBytes(is, close, bufferSize).map(x => new String(x, encoding))
+  def readStringFromStream(
+      is: InputStream,
+      encoding: String = "UTF-8",
+      close: Boolean = false,
+      bufferSize: Int = 4096
+  ): Maybe[String] =
+    readBytes(is, close, bufferSize).map(x ⇒ new String(x, encoding))
 
   
-  def apply(file: JFile): StreamResource = new FileStreamResource(file)
-  
-  def apply(url: URL): StreamResource    = new URLStreamResource(url.getPath, url)
+  def apply(file: JFile): Maybe[StreamResource] =
+    FileSystemRootResourceContext.getResource(file.getAbsolutePath)
 }

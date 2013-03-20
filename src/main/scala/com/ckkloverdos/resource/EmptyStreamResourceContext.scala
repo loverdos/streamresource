@@ -23,8 +23,11 @@ import com.ckkloverdos.maybe.NoVal
  *
  * @author Christos KK Loverdos <loverdos@gmail.com>.
  */
-object EmptyStreamResourceContext extends StreamResourceContextSkeleton(NoVal) {
+object EmptyStreamResourceContext extends StreamResourceContextSkeleton(None) {
   def /(child: String) = this
 
-  def getLocalResourceX(path: String) = NoVal
+  def getLocalResource(path: String) = NoVal
+
+  def getLocalResourceEx(path: String) =
+    throw new Exception("Resource %s not found in %s".format(path, this))
 }

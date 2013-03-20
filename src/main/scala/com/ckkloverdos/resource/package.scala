@@ -21,12 +21,15 @@ import maybe.{Failed, Maybe}
 
 
 package object resource {
+  final val FileSystemRootResourceContext = new FileStreamResourceContext(File.listRoots()(0))
 
-  val FileSystemRootResourceContext = new FileStreamResourceContext(new File("/"))
+  final val FileSystemUnixRootResourceContext = new FileStreamResourceContext(new File("/"))
 
-  val UserDirResourceContext = new FileStreamResourceContext(com.ckkloverdos.sys.SysProp.UserDir.rawValue)
+  final val UserDirResourceContext = new FileStreamResourceContext(com.ckkloverdos.sys.SysProp.UserDir.rawValue)
 
-  val DefaultResourceContext = new ClassLoaderStreamResourceContext(Thread.currentThread().getContextClassLoader)
+  final val DefaultResourceContext = new ClassLoaderStreamResourceContext(StreamResourceContext.getClass.getClassLoader)
+
+  final val ThreadResourceContext = new ClassLoaderStreamResourceContext(Thread.currentThread().getContextClassLoader)
 
   def closeAfter[C <: Closeable, A](c: C)(f: C => A): Maybe[A] = {
     try {

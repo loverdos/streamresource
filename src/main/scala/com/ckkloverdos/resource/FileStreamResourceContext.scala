@@ -41,19 +41,32 @@ import java.io.File
  */
 final class FileStreamResourceContext(
     root: File,
-    parent: Maybe[StreamResourceContext] = NoVal)
+    parent: Option[StreamResourceContext] = None)
   extends StreamResourceContextSkeleton(parent) {
   
-  def this(root: File, parent: StreamResourceContext) = this(root, Maybe(parent))
+  def this(root: File, parent: StreamResourceContext) = this(root, Some(parent))
   def this(root: String, parent: StreamResourceContext) = this(new File(root), parent)
-  def this(root: String) = this(new File(root), NoVal)
+  def this(root: String) = this(new File(root), None)
 
   def /(child: String) = new FileStreamResourceContext(new File(this.root, child), parent.map(_./(child)))
 
-  def getLocalResourceX(path: String) = {
+  def getLocalResource(path: String) = {
     new File(root, path) match {
-      case file if file.exists => Maybe(ResolvedStreamResource(new FileStreamResource(file), this))
-      case _ => NoVal
+      case file if file.exists ⇒
+        Maybe(new FileStreamResource(file, this))
+
+      case _ ⇒
+        NoVal
+    }
+  }
+
+  def getLocalResourceEx(path: String) = {
+    new File(root, path) match {
+      case file if file.exists ⇒
+        new FileStreamResource(file, this)
+
+      case file ⇒
+        throw new Exception("Resource %s [abspath: %s] not found in %s".format(path, file.getAbsolutePath, this))
     }
   }
 

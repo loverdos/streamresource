@@ -16,7 +16,7 @@
 
 package com.ckkloverdos.resource
 
-import com.ckkloverdos.maybe.{NoVal, Maybe}
+import com.ckkloverdos.maybe.{Failed, Just, NoVal, Maybe}
 
 
 /**
@@ -24,20 +24,20 @@ import com.ckkloverdos.maybe.{NoVal, Maybe}
  * @author Christos KK Loverdos <loverdos@gmail.com>.
  */
 final class CompositeStreamResourceContext(
-    parent: Maybe[StreamResourceContext],
+    parent: Option[StreamResourceContext],
     others: StreamResourceContext*)
   extends StreamResourceContextSkeleton(parent) {
 
   def /(child: String) = new CompositeStreamResourceContext(parent, others.map(_./(child)): _*)
 
-  def getLocalResourceX(path: String): Maybe[ResolvedStreamResource] = {
-    var _rrcM: Maybe[ResolvedStreamResource] = NoVal
+  def getLocalResource(path: String): Maybe[StreamResource] = {
+    var _rrcM: Maybe[StreamResource] = NoVal
     var _ctx: StreamResourceContext = null
     var _found = false
     val iter = others.iterator
     while(!_found && iter.hasNext) {
       _ctx = iter.next()
-      _rrcM = _ctx.getResourceX(path)
+      _rrcM = _ctx.getResource(path)
       _found = _rrcM.isJust
     }
     
@@ -45,6 +45,19 @@ final class CompositeStreamResourceContext(
       _rrcM
     } else {
       NoVal
+    }
+  }
+
+  def getLocalResourceEx(path: String) = {
+    getLocalResource(path) match {
+      case Just(resource) ⇒
+        resource
+
+      case NoVal ⇒
+        throw new Exception("Resource %s not found in %s".format(path, this))
+
+      case Failed(e) ⇒
+        throw new Exception("Resource %s not found in %s".format(path, this), e)
     }
   }
 

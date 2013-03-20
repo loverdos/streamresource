@@ -25,24 +25,41 @@ import java.net.URLClassLoader
  */
 final class ClassLoaderStreamResourceContext private(
     cl: ClassLoader,
-    parent: Maybe[StreamResourceContext],
+    parent: Option[StreamResourceContext],
     extraPath: String)
   extends StreamResourceContextSkeleton(parent) {
 
-  def this(cl: ClassLoader, parent: Maybe[StreamResourceContext]) = this(cl, parent, "")
-  def this(cl: ClassLoader, parent: StreamResourceContext) = this(cl, Maybe(parent))
-  def this(cl: ClassLoader) = this(cl, NoVal)
-  def this(clz: Class[_], parent: Maybe[StreamResourceContext]) = this(clz.getClassLoader, parent)
+  def this(cl: ClassLoader, parent: Option[StreamResourceContext]) = this(cl, parent, "")
+  def this(cl: ClassLoader, parent: StreamResourceContext) = this(cl, Some(parent))
+  def this(cl: ClassLoader) = this(cl, None)
+  def this(clz: Class[_], parent: Option[StreamResourceContext]) = this(clz.getClassLoader, parent)
   def this(clz: Class[_], parent: StreamResourceContext) = this(clz.getClassLoader, parent)
 
   def /(child: String) = new ClassLoaderStreamResourceContext(cl, parent, concatResourcePaths(this.extraPath, child))
 
-  def getLocalResourceX(path: String) = {
+  def getLocalResource(path: String) = {
     val actualPath = concatResourcePaths(extraPath, path)
     logger.debug("Searching for local resource %s (actual: %s) in %s".format(path, actualPath, this))
+
     cl.getResource(actualPath) match {
-      case null     => NoVal
-      case localURL => Maybe(ResolvedStreamResource(new URLStreamResource(actualPath, localURL), this))
+      case null ⇒
+        NoVal
+
+      case localURL ⇒
+        Maybe(new URLStreamResource(actualPath, localURL, this))
+    }
+  }
+
+  def getLocalResourceEx(path: String) = {
+    val actualPath = concatResourcePaths(extraPath, path)
+    logger.debug("Searching for local resource %s (actual: %s) in %s".format(path, actualPath, this))
+
+    cl.getResource(actualPath) match {
+      case null ⇒
+        throw new Exception("Resource %s [actual: %s] not found in %s".format(path, actualPath, this))
+
+      case localURL ⇒
+        new URLStreamResource(actualPath, localURL, this)
     }
   }
 
@@ -51,6 +68,7 @@ final class ClassLoaderStreamResourceContext private(
       case urlcs: URLClassLoader ⇒
         val urls = urlcs.getURLs
         "%s@%s(URLs = [%s])".format(urlcs.getClass.getName, System.identityHashCode(urlcs), urls.toList.mkString(", "))
+
       case cl ⇒
         cl.toString
     }

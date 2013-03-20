@@ -23,12 +23,15 @@ import com.ckkloverdos.maybe.{Maybe, Just, Failed}
  * 
  * @author Christos KK Loverdos <loverdos@gmail.com>.
  */
-abstract class StreamResourceSkeleton(_metadata: Map[String, String] = Map()) extends StreamResource {
+abstract class StreamResourceSkeleton(
+    val resolver: StreamResourceContext,
+    _metadata: Map[String, String] = Map()
+) extends StreamResource {
   protected def _inputStream: InputStream
 
   def metadata = _metadata
 
-  def mapInputStream[A](f: InputStream ⇒ A): Maybe[A] = {
+  def mapStream[A](f: InputStream ⇒ A): Maybe[A] = {
     try {
       val in = _inputStream
       try {
@@ -43,7 +46,7 @@ abstract class StreamResourceSkeleton(_metadata: Map[String, String] = Map()) ex
     }
   }
 
-  def flatMapInputStream[A](f: InputStream ⇒ Maybe[A]): Maybe[A] = {
+  def flatMapStream[A](f: InputStream ⇒ Maybe[A]): Maybe[A] = {
     try {
       val in = _inputStream
       try {
@@ -59,25 +62,25 @@ abstract class StreamResourceSkeleton(_metadata: Map[String, String] = Map()) ex
   }
 
   def mapReader[A](f: (Reader) => A): Maybe[A] = {
-    mapInputStream { in =>
+    mapStream { in =>
       f(new InputStreamReader(in, "UTF-8"))
     }
   }
 
   def mapBufferedReader[A](f: (BufferedReader) => A): Maybe[A] = {
-    mapInputStream { in =>
+    mapStream { in =>
       f(new BufferedReader(new InputStreamReader(in, "UTF-8")))
     }
   }
 
   def mapBytes[A](f: (Array[Byte]) => A) = {
-    flatMapInputStream { in =>
+    flatMapStream { in =>
       StreamResource.readBytes(in).map(f)
     }
   }
 
   def mapString[A](f: (String) => A) = {
-    flatMapInputStream { in =>
+    flatMapStream { in =>
       StreamResource.readStringFromStream(in).map(f)
     }
   }
